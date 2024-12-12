@@ -28,15 +28,6 @@ A beginner-friendly IL2CPP base for modding and creating cheats for your game. T
 
 ---
 
-## ✨ Custom Information Section  
-*(Add any additional information, notes, or special instructions for your project here.)*  
-
-- **Additional Tools**: Mention any tools or libraries you use.  
-- **Custom Features**: Describe unique features added to this base.  
-- **Game Compatibility**: List the games tested with this base.  
-
----
-
 ## 🤝 Contribution  
 Contributions are welcome! Feel free to fork the repository, add your features, and submit a pull request.  
 
