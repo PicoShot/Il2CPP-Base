@@ -187,6 +187,9 @@
     <ClInclude Include="Libs\Il2CppResolver\Utils\Hash.hpp" />
     <ClInclude Include="Libs\Il2CppResolver\Utils\Helper.hpp" />
     <ClInclude Include="Libs\Il2CppResolver\Utils\VTable.hpp" />
+    <ClInclude Include="Libs\ImGui\Components\CheckBox.hpp" />
+    <ClInclude Include="Libs\ImGui\Custom\Font.h" />
+    <ClInclude Include="Libs\ImGui\Custom\Rendering.hpp" />
     <ClInclude Include="Libs\ImGui\imconfig.h" />
     <ClInclude Include="Libs\ImGui\imgui.h" />
     <ClInclude Include="Libs\ImGui\imgui_impl_dx11.h" />

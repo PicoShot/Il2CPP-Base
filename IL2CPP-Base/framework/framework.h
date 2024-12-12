@@ -9,6 +9,7 @@
 #include <utility>
 #include <string>
 #include <stdint.h>
+#include <chrono>
 // Il2Cpp Resolver
 #include "../Libs/Il2CppResolver/IL2CPP_Resolver.hpp"
 // Kiero
@@ -22,6 +23,7 @@
 #include "../Libs/ImGui/Custom/vec.h"
 #include "../Libs/ImGui/Custom/vec2.h"
 #include "../Libs/ImGui/Custom/Rendering.hpp"
+#include "../Libs/ImGui/imgui_internal.h"
 // types
 typedef HRESULT(__stdcall* Present) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 typedef LRESULT(CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);

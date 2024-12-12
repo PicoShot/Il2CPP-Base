@@ -291,7 +291,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	if (show_menu)
 	{
 		// X Mouse Cursor
-		// render::DrawOutlinedTextForeground(gameFont, ImVec2(mousePos.x, mousePos.y), 13.0f, ImColor(vars::Rainbow.x, vars::Rainbow.y, vars::Rainbow.z), false, "X");
+		render::DrawOutlinedTextForeground(gameFont, ImVec2(mousePos.x, mousePos.y), 13.0f, ImColor(vars::Rainbow.x, vars::Rainbow.y, vars::Rainbow.z), false, "X");
 		DrawMenu();
 	}
 	// Render
@@ -313,9 +313,11 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 
 	if (GetKeyState(VK_END) & 1)
 	{
+		show_menu = false;
+		FreeConsole();
+		kiero::shutdown();
 		MH_DisableHook(MH_ALL_HOOKS);
 		MH_Uninitialize();
-		show_menu = false;
 	}
 
 	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
@@ -401,21 +403,23 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
     return TRUE;
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        CreateThread(nullptr, 0, MainThread, hModule, 0, nullptr);
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		DisableThreadLibraryCalls(hModule);
+		CreateThread(nullptr, 0, MainThread, hModule, 0, nullptr);
+		break;
+
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+		break;
+
+	case DLL_PROCESS_DETACH:
+		FreeLibraryAndExitThread(hModule, 0);	
+		break;
+	}
+	return TRUE;
 }
 
