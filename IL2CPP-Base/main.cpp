@@ -3,7 +3,6 @@
 #include "Game/Menu.h"
 #include "Game/Lists.hpp"
 #include "Game/Functions.h"
-#include "Utils/PatternScan.hpp"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -333,42 +332,58 @@ void CachePlayers()
 	while (true)
 	{
 		if (!vars::initil2cpp)
+		{
+			Sleep(1000);
 			continue;
+		}
 
 		void* m_pThisThread = IL2CPP::Thread::Attach(IL2CPP::Domain::Get());
 
 		LocalPlayer = NULL;
 		PlayerList.clear();
+
 		try
 		{
-
 			auto list = Unity::Object::FindObjectsOfType<Unity::CComponent>("PlayerController");
 
-			for (int i = 0; i < list->m_uMaxLength;)
+			if (!list || list->m_uMaxLength == 0)
+			{
+				IL2CPP::Thread::Detach(m_pThisThread);
+				Sleep(1000);
+				continue;
+			}
+
+			for (int i = 0; i < list->m_uMaxLength; i++)
 			{
 				auto Player = list->operator[](i);
 				if (!Player)
 					continue;
 
-				Unity::CComponent* PlayerSettings = Player->GetGameObject()->GetComponent("PlayerController");
+				auto gameObject = Player->GetGameObject();
+				if (!gameObject)
+					continue;
+
+				Unity::CComponent* PlayerSettings = gameObject->GetComponent("PlayerController");
+				if (!PlayerSettings)
+					continue;
+
+				PlayerSettings->GetMemberValue<bool>("isLocal");
 				if (PlayerSettings)
 				{
-					Unity::CTransform* playerTransform = list->operator[](i)->GetTransform();
-
-					int playerChilds = playerTransform->GetChildCount();
-
-					if (playerChilds == 22)
-					{
-						LocalPlayer = Player->GetGameObject();
-						continue;
-					}
+					LocalPlayer = gameObject;
+					continue;
 				}
-				PlayerList.push_back(Player->GetGameObject());
+
+				PlayerList.push_back(gameObject);
 			}
+		}
+		catch (const std::exception& e)
+		{
+			printf("Exception caught: %s\n", e.what());
 		}
 		catch (...)
 		{
-			printf("error!");
+			printf("Unknown error occurred!\n");
 		}
 
 		IL2CPP::Thread::Detach(m_pThisThread);
@@ -385,7 +400,7 @@ void  initchair()
     IL2CPP::Callback::Initialize();
     EnableHooks();
     kiero::bind(8, (void**)&oPresent, hkPresent);
-    CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)CachePlayers, NULL, NULL, NULL);
+    CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)CachePlayers, nullptr, NULL, nullptr);
 }
 
 DWORD WINAPI MainThread(LPVOID lpReserved)
@@ -393,7 +408,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
     bool init_hook = false;
     do
     {
-        if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+        if (kiero::init(kiero::RenderType::Auto) == kiero::Status::Success)
         {
             initchair();
             init_hook = true;
@@ -405,20 +420,16 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
-	switch (ul_reason_for_call)
+	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
-	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hModule);
 		CreateThread(nullptr, 0, MainThread, hModule, 0, nullptr);
-		break;
-
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-		break;
-
-	case DLL_PROCESS_DETACH:
-		FreeLibraryAndExitThread(hModule, 0);	
-		break;
+	}
+	else if (ul_reason_for_call == DLL_PROCESS_DETACH)
+	{
+	
+		kiero::shutdown();
+		FreeLibraryAndExitThread(hModule, 0);
 	}
 	return TRUE;
 }
